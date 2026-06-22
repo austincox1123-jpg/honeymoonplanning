@@ -2,437 +2,493 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
 <title>Honeymoon Itinerary</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --color-background-primary: #ffffff;
-    --color-background-secondary: #f9f9f9;
-    --color-text-primary: #333333;
-    --color-text-secondary: #666666;
-    --color-text-tertiary: #999999;
-    --color-border-secondary: #cccccc;
-    --color-border-tertiary: #eeeeee;
-    --border-radius-lg: 12px;
-    --border-radius-md: 8px;
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --bg: #F9FAFB;
+    --card-bg: #FFFFFF;
+    --text-main: #111827;
+    --text-sub: #6B7280;
+    --accent: #3B82F6;
+    --border: #E5E7EB;
+    --radius: 12px;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--font-sans); background: var(--color-background-secondary); padding: 20px; }
-  .container { max-width: 900px; margin: 0 auto; background: var(--color-background-primary); padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent;}
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); padding-bottom: 80px; }
   
-  /* Navigation */
-  .nav { display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 15px; border-bottom: 1px solid var(--color-border-tertiary); margin-bottom: 20px; }
-  .nav-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); font-size: 14px; cursor: pointer; transition: all 0.2s ease; }
-  .nav-btn:hover { background: var(--color-background-secondary); }
-  .nav-btn.active { background: #185FA5; color: #E6F1FB; border-color: #185FA5; }
+  /* Top App Bar */
+  .header { position: sticky; top: 0; background: var(--card-bg); padding: 16px 20px; border-bottom: 1px solid var(--border); z-index: 100; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;}
+  .header h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.5px;}
+  .header-actions { display: flex; gap: 12px;}
+  .icon-btn-header { background: #eff6ff; color: var(--accent); border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer;}
   
-  /* Legend */
-  .legend { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; padding: 10px 0; border-bottom: 1px solid var(--color-border-tertiary); }
-  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--color-text-secondary); }
-  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
-  
-  /* Day Panel */
-  .day-panel { display: none; }
-  .day-panel.active { display: block; animation: fadeIn 0.3s ease; }
+  /* Horizontal Scrolling Nav */
+  .nav-scroll { overflow-x: auto; white-space: nowrap; padding: 12px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border); -webkit-overflow-scrolling: touch; scrollbar-width: none;}
+  .nav-scroll::-webkit-scrollbar { display: none; }
+  .nav-pill { display: inline-block; padding: 8px 16px; margin-right: 8px; border-radius: 20px; font-size: 14px; font-weight: 500; color: var(--text-sub); border: 1px solid var(--border); transition: all 0.2s;}
+  .nav-pill.active { background: var(--text-main); color: white; border-color: var(--text-main); }
+  .nav-pill.overview { border-color: #10B981; color: #10B981; }
+  .nav-pill.overview.active { background: #10B981; color: white; }
+
+  /* Content Area */
+  .day-panel { display: none; padding: 20px; animation: fadeIn 0.2s ease;}
+  .day-panel.active { display: block; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
   
-  .day-header { margin-bottom: 20px; }
-  .day-title { font-size: 24px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 5px;}
-  .day-sub { font-size: 14px; color: var(--color-text-secondary); }
-  
-  /* Tips Grid */
-  .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 25px; }
-  .tip-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 15px; border: 1px solid var(--color-border-tertiary);}
-  .tip-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;}
-  .tip-val { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+  .day-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.5px;}
+  .day-sub { font-size: 14px; color: var(--text-sub); margin-bottom: 20px; line-height: 1.4;}
 
-  /* Controls */
-  .controls-bar { display: flex; gap: 10px; margin-bottom: 25px; align-items: center; }
-  .action-btn { padding: 10px 18px; border-radius: 8px; border: none; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-  .btn-route { background: #185FA5; color: white; }
-  .btn-route:hover { background: #124a82; }
-  .btn-add { background: #E6F1FB; color: #185FA5; border: 1px solid #cce0f5; }
-  .btn-add:hover { background: #d0e5f9; }
-  .btn-reset { background: #fee; color: #c0392b; border: 1px solid #fcc; margin-left: auto;}
-  .btn-reset:hover { background: #fcc; }
+  /* Quick Tips */
+  .tips-scroller { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 10px; margin-left: -20px; padding-left: 20px; padding-right: 20px; -webkit-overflow-scrolling: touch; scrollbar-width: none;}
+  .tips-scroller::-webkit-scrollbar { display: none; }
+  .tip-chip { background: #F3F4F6; border-radius: 8px; padding: 10px 14px; min-width: 140px; flex-shrink: 0; border: 1px solid var(--border);}
+  .tip-label { font-size: 11px; text-transform: uppercase; color: var(--text-sub); font-weight: 600; margin-bottom: 4px; letter-spacing: 0.5px;}
+  .tip-val { font-size: 13px; font-weight: 500; color: var(--text-main); line-height: 1.3;}
 
-  /* Timeline */
-  .timeline { position: relative; padding-left: 24px; }
-  .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--color-border-tertiary); }
-  
-  /* Stops */
-  .stop { position: relative; margin-bottom: 20px; padding-left: 20px; transition: opacity 0.3s ease; }
-  .stop.excluded { opacity: 0.4; }
-  .stop::before { content: ''; position: absolute; left: -21px; top: 12px; width: 10px; height: 10px; border-radius: 50%; background: #378ADD; border: 2px solid var(--color-background-primary); box-shadow: 0 0 0 2px #378ADD; z-index: 1; }
-  
-  /* Stop Types Colors */
-  .stop[data-type="food"]::before { background: #D85A30; box-shadow: 0 0 0 2px #D85A30; }
-  .stop[data-type="hotel"]::before { background: #1D9E75; box-shadow: 0 0 0 2px #1D9E75; }
-  .stop[data-type="night"]::before { background: #7F77DD; box-shadow: 0 0 0 2px #7F77DD; }
-  .stop[data-type="transit"]::before { background: #888780; box-shadow: 0 0 0 2px #888780; }
-  .stop[data-type="sightseeing"]::before { background: #378ADD; box-shadow: 0 0 0 2px #378ADD; }
-  
-  .stop-card { background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: transform 0.2s, box-shadow 0.2s; position: relative;}
-  .stop-card:hover { border-color: var(--color-border-secondary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-  
-  .stop-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
-  .stop-info { flex: 1; }
-  .stop-name { font-size: 16px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 4px;}
-  .stop-time { font-size: 13px; color: var(--color-text-secondary); font-weight: 500; }
-  .stop-note { font-size: 14px; color: var(--color-text-secondary); line-height: 1.5; padding-top: 10px; border-top: 1px solid var(--color-border-tertiary); margin-bottom: 10px;}
-  
-  /* Action Bars inside cards */
-  .card-footer { display: flex; gap: 15px; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--color-border-tertiary); flex-wrap: wrap;}
-  
-  .route-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--color-text-secondary); background: #f8f9fa; padding: 6px 10px; border-radius: 6px; cursor: pointer; border: 1px solid #e9ecef;}
-  .route-toggle input { cursor: pointer; width: 14px; height: 14px; }
-  
-  .file-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: white; background: #2c3e50; font-weight: 500; cursor: pointer; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; transition: background 0.2s;}
-  .file-btn:hover { background: #34495e; }
-  .file-btn.remove { background: #e74c3c; padding: 6px; }
-  .file-btn.remove:hover { background: #c0392b; }
+  /* Floating Action Button (Maps) */
+  .fab { position: fixed; bottom: 20px; right: 20px; background: var(--text-main); color: white; width: 56px; height: 56px; border-radius: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.25); z-index: 1000; border: none; font-size: 24px; cursor: pointer; transition: transform 0.2s;}
+  .fab:active { transform: scale(0.95); }
 
-  .map-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #185FA5; font-weight: 500; cursor: pointer; background: none; border: none; padding: 0; text-decoration: none; margin-left: auto;}
-  .map-btn:hover { text-decoration: underline; }
-
-  /* Badges */
-  .badges-container { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-  .badge { font-size: 12px; padding: 4px 10px; border-radius: 12px; white-space: nowrap; font-weight: 500;}
-  .badge-blue { background: #E6F1FB; color: #185FA5; }
-  .badge-coral { background: #FAECE7; color: #993C1D; }
-  .badge-green { background: #EAF3DE; color: #3B6D11; }
-  .badge-purple { background: #EEEDFE; color: #534AB7; }
-  .badge-gray { background: #F1EFE8; color: #5F5E5A; }
-  .badge-amber { background: #FAEEDA; color: #854F0B; }
-
-  /* Action Buttons (Edit/Delete) */
-  .card-actions { position: absolute; top: 16px; right: 16px; display: flex; gap: 8px; opacity: 0; transition: opacity 0.2s; }
-  .stop-card:hover .card-actions { opacity: 1; }
-  .icon-btn { background: var(--color-background-secondary); border: 1px solid var(--color-border-tertiary); border-radius: 4px; padding: 4px 8px; font-size: 12px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
-  .icon-btn.edit { color: #185FA5; }
-  .icon-btn.edit:hover { background: #E6F1FB; border-color: #185FA5; }
-  .icon-btn.delete { color: #dc3545; }
-  .icon-btn.delete:hover { background: #fdf2f2; border-color: #dc3545; }
-
-  /* Modal Form */
-  .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
-  .modal { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;}
-  .modal h3 { margin-bottom: 20px; color: var(--color-text-primary); }
-  .form-group { margin-bottom: 15px; }
-  .form-group label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: 500; color: var(--color-text-secondary); }
-  .form-group input[type="text"], .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--color-border-secondary); border-radius: 6px; font-family: inherit; font-size: 14px; }
-  .form-group input[type="file"] { width: 100%; padding: 8px; border: 1px dashed var(--color-border-secondary); border-radius: 6px; font-size: 13px; background: #fcfcfc;}
-  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
-  .btn-cancel { padding: 10px 15px; border: 1px solid var(--color-border-secondary); background: white; border-radius: 6px; cursor: pointer; }
-  .btn-save { padding: 10px 20px; background: #185FA5; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+  /* Timeline List */
+  .timeline { margin-top: 10px; }
+  .stop-item { display: flex; gap: 12px; margin-bottom: 20px; position: relative;}
   
-  .file-name-display { font-size: 12px; color: #27ae60; margin-top: 5px; font-weight: 500;}
+  /* Timeline Line & Dot */
+  .time-col { width: 45px; flex-shrink: 0; text-align: right; position: relative;}
+  .time-text { font-size: 12px; font-weight: 600; color: var(--text-sub); line-height: 1.2; padding-top: 4px;}
+  .line { position: absolute; right: -13px; top: 24px; bottom: -30px; width: 2px; background: #E5E7EB; z-index: 0;}
+  .stop-item:last-child .line { display: none; }
+  
+  .dot { position: absolute; right: -17px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: #9CA3AF; border: 2px solid var(--bg); box-shadow: 0 0 0 2px #9CA3AF; z-index: 1;}
+  
+  .stop-item[data-type="food"] .dot { background: #F59E0B; box-shadow: 0 0 0 2px #F59E0B;}
+  .stop-item[data-type="hotel"] .dot { background: #10B981; box-shadow: 0 0 0 2px #10B981;}
+  .stop-item[data-type="sightseeing"] .dot { background: #3B82F6; box-shadow: 0 0 0 2px #3B82F6;}
+  .stop-item[data-type="night"] .dot { background: #8B5CF6; box-shadow: 0 0 0 2px #8B5CF6;}
+  .stop-item[data-type="overview"] .dot { background: #111827; box-shadow: 0 0 0 2px #111827;}
 
+  /* Card */
+  .card { flex-grow: 1; background: var(--card-bg); border-radius: var(--radius); padding: 14px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.02); margin-left: 8px;}
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 4px;}
+  .name { font-size: 15px; font-weight: 600; color: var(--text-main); line-height: 1.3;}
+  .note { font-size: 13px; color: var(--text-sub); line-height: 1.4; margin-top: 6px;}
+  
+  .badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;}
+  .badge-blue { background: #EFF6FF; color: #1D4ED8; }
+  .badge-coral { background: #FEF3C7; color: #B45309; }
+  .badge-green { background: #ECFDF5; color: #047857; }
+  .badge-purple { background: #F5F3FF; color: #6D28D9; }
+  .badge-gray { background: #F3F4F6; color: #4B5563; }
+  .badge-amber { background: #FEF2F2; color: #B91C1C; }
+  .badge-dark { background: #F3F4F6; color: #111827; }
+
+  /* Checkbox & File */
+  .card-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border);}
+  
+  .custom-checkbox { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--text-sub);}
+  .custom-checkbox input { width: 16px; height: 16px; accent-color: var(--text-main); }
+  
+  .file-chip { display: flex; align-items: center; gap: 4px; background: #F3F4F6; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; color: var(--text-main); border: none;}
+  .file-chip.del { background: #FEE2E2; color: #DC2626; padding: 4px; margin-left: 4px;}
+
+  /* Swipe Actions Note */
+  .swipe-note { font-size: 11px; text-align: center; color: #9CA3AF; margin-bottom: 10px; font-style: italic;}
+
+  /* Swipe to delete/edit containers */
+  .stop-item { overflow: hidden; }
+  .card-wrapper { display: flex; width: 100%; transition: transform 0.2s ease-out; touch-action: pan-y;}
+  .card-actions-hidden { display: flex; width: 120px; flex-shrink: 0; }
+  .hidden-btn { flex: 1; border: none; font-size: 12px; font-weight: 600; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;}
+  .btn-edit { background: var(--accent); }
+  .btn-del { background: #EF4444; border-top-right-radius: var(--radius); border-bottom-right-radius: var(--radius);}
+
+  /* Mobile Modal */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 2000; align-items: flex-end; justify-content: center; }
+  .modal { background: var(--card-bg); width: 100%; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 24px 20px; padding-bottom: calc(24px + env(safe-area-inset-bottom)); max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);}
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;}
+  .modal-header h3 { font-size: 18px; font-weight: 700;}
+  .close-btn { background: #F3F4F6; border: none; width: 30px; height: 30px; border-radius: 15px; font-weight: bold; color: var(--text-sub);}
+  
+  .input-group { margin-bottom: 16px;}
+  .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-sub); margin-bottom: 6px; text-transform: uppercase;}
+  .mobile-input { width: 100%; background: #F9FAFB; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 16px; color: var(--text-main); -webkit-appearance: none;}
+  .mobile-input:focus { outline: 2px solid var(--accent); border-color: transparent;}
+  textarea.mobile-input { min-height: 80px; resize: none; font-family: inherit;}
+  
+  .save-btn { width: 100%; background: var(--text-main); color: white; font-weight: 600; font-size: 16px; padding: 14px; border-radius: 8px; border: none; margin-top: 10px; cursor: pointer;}
+  
 </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="nav" id="nav-container">
-    <!-- Nav buttons generated via JS -->
-  </div>
-
-  <div class="legend">
-    <div class="legend-item"><div class="legend-dot" style="background:#378ADD"></div>Sightseeing</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#D85A30"></div>Food & drink</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"></div>Hotel</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#7F77DD"></div>Nightlife</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#888780"></div>Transit</div>
-  </div>
-
-  <div id="content-area">
-    <!-- Day content generated via JS -->
+<div class="header">
+  <h1>Honeymoon</h1>
+  <div class="header-actions">
+    <button class="icon-btn-header" onclick="openAddModal()">+</button>
   </div>
 </div>
 
-<!-- Add/Edit Stop Modal -->
+<div class="nav-scroll" id="nav-container">
+  <!-- Nav generated by JS -->
+</div>
+
+<div id="content-area">
+  <!-- Content generated by JS -->
+</div>
+
+<!-- Map FAB -->
+<button class="fab" onclick="openRoute()" id="fab-map">🗺️</button>
+
+<!-- Mobile Modal -->
 <div class="modal-overlay" id="stopModal">
   <div class="modal">
-    <h3 id="modal-title">Add New Stop</h3>
-    <div class="form-group">
-      <label>Location / Stop Name</label>
-      <input type="text" id="new-name" placeholder="e.g., Eiffel Tower">
+    <div class="modal-header">
+      <h3 id="modal-title">Add Stop</h3>
+      <button class="close-btn" onclick="closeModal()">✕</button>
     </div>
-    <div class="form-group">
-      <label>Google Maps Location Search (Required for Routing)</label>
-      <input type="text" id="new-location" placeholder="e.g., Eiffel Tower, Paris">
+    
+    <div class="input-group">
+      <label>Stop Name</label>
+      <input type="text" class="mobile-input" id="new-name" placeholder="Eiffel Tower">
     </div>
-    <div class="form-group">
-      <label>Time</label>
-      <input type="text" id="new-time" placeholder="e.g., 2:00 PM">
+    <div class="input-group">
+      <label>Maps Search Location</label>
+      <input type="text" class="mobile-input" id="new-location" placeholder="Eiffel Tower, Paris">
     </div>
-    <div class="form-group">
-      <label>Type</label>
-      <select id="new-type">
-        <option value="sightseeing">Sightseeing</option>
-        <option value="food">Food & Drink</option>
-        <option value="hotel">Hotel</option>
-        <option value="night">Nightlife</option>
-        <option value="transit">Transit</option>
-      </select>
+    <div style="display: flex; gap: 12px;">
+      <div class="input-group" style="flex: 1;">
+        <label>Time</label>
+        <input type="text" class="mobile-input" id="new-time" placeholder="2:00 PM">
+      </div>
+      <div class="input-group" style="flex: 1;">
+        <label>Category</label>
+        <select class="mobile-input" id="new-type">
+          <option value="sightseeing">Sightseeing</option>
+          <option value="food">Food & Drink</option>
+          <option value="hotel">Hotel</option>
+          <option value="transit">Transit</option>
+          <option value="overview">Milestone</option>
+        </select>
+      </div>
     </div>
-    <div class="form-group">
+    <div class="input-group">
       <label>Notes</label>
-      <textarea id="new-note" rows="3" placeholder="Any details..."></textarea>
+      <textarea class="mobile-input" id="new-note" placeholder="Any details..."></textarea>
     </div>
-    <div class="form-group">
-      <label>Attach Ticket / PDF / Image (Saved Locally)</label>
-      <input type="file" id="new-file" accept=".pdf,image/*,.png,.jpg,.jpeg">
-      <div id="current-file-name" class="file-name-display"></div>
+    <div class="input-group">
+      <label>Attach File (Saved to Phone)</label>
+      <input type="file" class="mobile-input" style="padding: 8px; font-size: 14px;" id="new-file" accept=".pdf,image/*,.png,.jpg,.jpeg">
+      <div id="current-file-name" style="font-size: 11px; color: #10B981; margin-top: 4px; font-weight: 500;"></div>
     </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-save" onclick="saveStop()">Save Stop</button>
-    </div>
+    
+    <button class="save-btn" onclick="saveStop()">Save</button>
   </div>
 </div>
 
 <script>
-// Database Setup for storing large binary files (PDFs/Images) entirely offline in the browser
-const dbName = "HoneymoonItineraryDB";
+// Mobile Database Engine
+const dbName = "HoneymoonItineraryDB_Mobile";
 let db;
 
 const initDB = () => {
     const request = indexedDB.open(dbName, 1);
     request.onupgradeneeded = function(event) {
         db = event.target.result;
-        if (!db.objectStoreNames.contains("attachments")) {
-            db.createObjectStore("attachments");
-        }
+        if (!db.objectStoreNames.contains("attachments")) db.createObjectStore("attachments");
     };
     request.onsuccess = function(event) {
         db = event.target.result;
-        loadData(); // Load text data from localStorage, then render
-    };
-    request.onerror = function(event) {
-        console.error("Database error: " + event.target.errorCode);
         loadData(); 
     };
+    request.onerror = function() { loadData(); };
 };
 
 function saveAttachment(stopId, fileBlob, fileName) {
     if(!db) return;
-    const transaction = db.transaction(["attachments"], "readwrite");
-    const store = transaction.objectStore("attachments");
+    const store = db.transaction(["attachments"], "readwrite").objectStore("attachments");
     store.put({ blob: fileBlob, name: fileName }, stopId);
 }
-
 function removeAttachmentDB(stopId) {
     if(!db) return;
-    const transaction = db.transaction(["attachments"], "readwrite");
-    const store = transaction.objectStore("attachments");
-    store.delete(stopId);
+    db.transaction(["attachments"], "readwrite").objectStore("attachments").delete(stopId);
 }
-
 function openAttachment(stopId) {
     if(!db) return;
-    const transaction = db.transaction(["attachments"], "readonly");
-    const store = transaction.objectStore("attachments");
-    const request = store.get(stopId);
-    
+    const request = db.transaction(["attachments"], "readonly").objectStore("attachments").get(stopId);
     request.onsuccess = function() {
         const fileData = request.result;
-        if(fileData && fileData.blob) {
-            const url = URL.createObjectURL(fileData.blob);
-            window.open(url, '_blank');
-        } else {
-            alert("File not found in local database.");
-        }
+        if(fileData && fileData.blob) window.open(URL.createObjectURL(fileData.blob), '_blank');
+        else alert("File not found on this device.");
     };
 }
 
-
-// Default Hardcoded Data Structure
+// Default Data 
 const defaultItineraryData = {
-  "jun28": {
-    navLabel: "Jun 28 — Nice",
-    title: "June 28 — Arrival in Nice",
-    sub: "Flight from Rome lands 6:30pm · Le Dortoir Boutique Suites, Nice",
-    tips: [
-      { label: "Hotel", val: "Le Dortoir Boutique Suites" },
-      { label: "Note", val: "No elevator — stairs only" }
-    ],
+  "overview": {
+    navLabel: "Overview",
+    title: "Trip at a Glance",
+    sub: "High-level logistics and accommodations",
+    tips: [{ label: "Pet Care", val: "Walter with Mo! (Jun 24-Jul 1) & Natalie (Jul 1-8)" }],
     stops: [
-      { id: "1", type: "transit", name: "Flight Rome → Nice", time: "5:15pm – 6:30pm", badgeText: "Transit", badgeColor: "gray", note: "", mapLink: "", searchLoc: "", include: false, hasFile: false },
-      { id: "2", type: "transit", name: "Uber to hotel", time: "6:30pm", badgeText: "Transit", badgeColor: "gray", note: "", mapLink: "", searchLoc: "Nice Airport to 11 Rue Paradis", include: true, hasFile: false },
-      { id: "3", type: "hotel", name: "Le Dortoir Boutique Suites", time: "Check-in", badgeText: "Reserved", badgeColor: "green", note: "11 Rue Paradis — rated 4.4 ⭑", mapLink: "https://maps.google.com/?q=Le+Dortoir+Boutique+Suites+Nice+France", searchLoc: "11 Rue Paradis Nice", include: true, hasFile: false },
-      { id: "4", type: "food", name: "La Cucina — Dinner", time: "Evening", badgeText: "Food", badgeColor: "coral", note: "No reservations taken.", mapLink: "https://maps.google.com/?q=LA.+CUCINA+9+Rue+du+Commandant+Raffalli+Nice+France", searchLoc: "La Cucina Nice France", include: true, hasFile: false },
-      { id: "5", type: "night", name: "Le Shapko — Jazz bar", time: "Late night", badgeText: "Optional", badgeColor: "purple", note: "5 Rue Rossetti", mapLink: "https://maps.google.com/?q=Le+Shapko+5+Rue+Rossetti+Nice+France", searchLoc: "Le Shapko Nice France", include: true, hasFile: false }
+      { id: "o1", type: "transit", name: "Flight: MKE → ATL → Rome", time: "Jun 24-25", badgeText: "Booked", badgeColor: "gray", note: "Depart MKE 10:25 AM. Arrive Rome FCO 7:35 AM (Jun 25).", include: false },
+      { id: "o2", type: "hotel", name: "Tuscany Wedding Events", time: "Jun 25-27", badgeText: "Italy", badgeColor: "green", note: "Wedding festivities in Tuscany.", include: false },
+      { id: "o3", type: "transit", name: "Flight: Rome → Nice", time: "Jun 28, 5:15 PM", badgeText: "Booked", badgeColor: "gray", include: false },
+      { id: "o4", type: "hotel", name: "Le Dortoir Boutique Suites", time: "Jun 28-Jul 1", badgeText: "Nice", badgeColor: "green", note: "11 Rue Paradis", searchLoc: "11 Rue Paradis Nice France", include: true },
+      { id: "o5", type: "hotel", name: "Château Le Cagnard", time: "Jul 1-Jul 5", badgeText: "Cagnes", badgeColor: "green", note: "54 Rue Sous Barri", searchLoc: "Château Le Cagnard", include: true },
+      { id: "o6", type: "transit", name: "Flight: Nice → Paris", time: "Jul 5, 3:20 PM", badgeText: "Air France", badgeColor: "gray", include: false },
+      { id: "o7", type: "hotel", name: "Hotel Adele & Jules", time: "Jul 5-Jul 8", badgeText: "Paris", badgeColor: "green", note: "2 Cité Rougemont", searchLoc: "Hotel Adele & Jules Paris", include: true },
+      { id: "o8", type: "transit", name: "Flight: CDG → MKE", time: "Jul 8, 9:10 AM", badgeText: "Return", badgeColor: "gray", include: false }
+    ]
+  },
+  "jun28": {
+    navLabel: "Jun 28 (Nice)",
+    title: "Arrival in Nice",
+    sub: "Settle in and first dinner",
+    tips: [{ label: "Hotel", val: "Le Dortoir (Stairs only)" }],
+    stops: [
+      { id: "1", type: "transit", name: "Uber to hotel", time: "6:30 PM", badgeText: "Transit", badgeColor: "gray", searchLoc: "Nice Airport to 11 Rue Paradis", include: true },
+      { id: "2", type: "hotel", name: "Le Dortoir Check-in", time: "Evening", badgeText: "Reserved", badgeColor: "green", searchLoc: "11 Rue Paradis Nice", include: true },
+      { id: "3", type: "food", name: "La Cucina — Dinner", time: "Evening", badgeText: "Food", badgeColor: "coral", note: "No reservations", searchLoc: "La Cucina Nice France", include: true },
+      { id: "4", type: "night", name: "Le Shapko — Jazz", time: "Late", badgeText: "Optional", badgeColor: "purple", searchLoc: "Le Shapko Nice France", include: true }
     ]
   },
   "jun29": {
-    navLabel: "Jun 29 — Eze",
-    title: "June 29 — Eze Village & Cap-Ferrat",
-    sub: "Train to Eze · Coastal walk · Dinner at La Merenda",
-    tips: [
-      { label: "Reservation", val: "La Merenda at 8:30pm · Cash only" },
-      { label: "Transport", val: "Train → Eze, Uber → Cap-Ferrat" }
-    ],
+    navLabel: "Jun 29 (Eze)",
+    title: "Eze & Cap-Ferrat",
+    sub: "Coastal exploration",
+    tips: [{ label: "Reservation", val: "La Merenda (8:30pm) - CASH ONLY" }],
     stops: [
-      { id: "6", type: "transit", name: "Train to Eze", time: "Morning", badgeText: "Transit", badgeColor: "gray", note: "", mapLink: "", searchLoc: "", include: false, hasFile: false },
-      { id: "7", type: "food", name: "Petit Loup Specialty Coffee", time: "Morning coffee", badgeText: "Food", badgeColor: "coral", note: "12 Rue de la Pise, Eze", mapLink: "https://maps.google.com/?q=Petit+Loup+Specialty+Coffee+Eze+France", searchLoc: "Petit Loup Eze", include: true, hasFile: false },
-      { id: "8", type: "sightseeing", name: "Jardin Exotique d'Eze", time: "Morning", badgeText: "Sightseeing", badgeColor: "blue", note: "Stunning cactus garden.", mapLink: "https://maps.google.com/?q=Jardin+Exotique+Eze+France", searchLoc: "Jardin Exotique Eze", include: true, hasFile: false },
-      { id: "9", type: "food", name: "Lunch: Le Nid d'Aigle", time: "Midday", badgeText: "No res.", badgeColor: "amber", note: "Perched in the village.", mapLink: "", searchLoc: "Le Nid d'Aigle Eze", include: true, hasFile: false },
-      { id: "10", type: "sightseeing", name: "Tour de la presqu'île", time: "Afternoon", badgeText: "Sightseeing", badgeColor: "blue", note: "Coastal walk.", mapLink: "https://maps.google.com/?q=Promenade+du+cap+Saint-Jean-Cap-Ferrat+France", searchLoc: "Saint-Jean-Cap-Ferrat", include: true, hasFile: false },
-      { id: "11", type: "food", name: "La Merenda — Dinner", time: "8:30pm", badgeText: "Cash only", badgeColor: "amber", note: "4 Rue Raoul Bosio.", mapLink: "https://maps.google.com/?q=La+Merenda+4+Rue+Raoul+Bosio+Nice+France", searchLoc: "La Merenda Nice", include: true, hasFile: false }
+      { id: "6", type: "transit", name: "Train to Eze", time: "Morning", badgeText: "Transit", badgeColor: "gray", include: false },
+      { id: "7", type: "food", name: "Petit Loup Coffee", time: "Morning", badgeText: "Food", badgeColor: "coral", searchLoc: "Petit Loup Eze", include: true },
+      { id: "8", type: "sightseeing", name: "Jardin Exotique d'Eze", time: "Morning", badgeText: "View", badgeColor: "blue", searchLoc: "Jardin Exotique Eze", include: true },
+      { id: "9", type: "food", name: "Lunch: Le Nid d'Aigle", time: "Midday", badgeText: "Food", badgeColor: "amber", searchLoc: "Le Nid d'Aigle Eze", include: true },
+      { id: "10", type: "sightseeing", name: "Tour de la presqu'île", time: "Afternoon", badgeText: "Walk", badgeColor: "blue", searchLoc: "Saint-Jean-Cap-Ferrat", include: true },
+      { id: "11", type: "food", name: "La Merenda — Dinner", time: "8:30 PM", badgeText: "Cash Only", badgeColor: "amber", searchLoc: "La Merenda Nice", include: true }
     ]
   },
   "jun30": {
-    navLabel: "Jun 30 — Monaco",
-    title: "June 30 — Monaco & Monte Carlo",
-    sub: "Train to Monaco · Palace, Museum, Casino · Dinner at La Môme",
-    tips: [
-      { label: "Reserved", val: "Oceanographic Museum, Prince's Palace, La Môme" }
-    ],
+    navLabel: "Jun 30 (Monaco)",
+    title: "Monaco & Monte Carlo",
+    sub: "Museums and Casino",
+    tips: [{ label: "Dinner", val: "La Môme (7:30pm)" }],
     stops: [
-      { id: "12", type: "food", name: "HOBO Coffee", time: "Morning", badgeText: "Food", badgeColor: "coral", note: "5 Bis Rue Sainte-Réparate.", mapLink: "https://maps.google.com/?q=HOBO+COFFEE+Nice+France", searchLoc: "HOBO Coffee Nice", include: true, hasFile: false },
-      { id: "13", type: "sightseeing", name: "Promenade des Anglais", time: "Morning", badgeText: "Sightseeing", badgeColor: "blue", note: "", mapLink: "https://maps.google.com/?q=Promenade+des+Anglais+Nice+France", searchLoc: "Promenade des Anglais", include: true, hasFile: false },
-      { id: "14", type: "food", name: "Chez Acchiardo — Lunch", time: "12:30pm", badgeText: "Reserved", badgeColor: "green", note: "38 Rue Droite", mapLink: "https://maps.google.com/?q=Chez+Acchiardo+38+Rue+Droite+Nice+France", searchLoc: "Chez Acchiardo Nice", include: true, hasFile: false },
-      { id: "15", type: "sightseeing", name: "F1 Fairmont Hairpin", time: "Afternoon", badgeText: "Sightseeing", badgeColor: "blue", note: "Monaco.", mapLink: "https://maps.google.com/?q=Fairmont+Hairpin+Monaco", searchLoc: "Fairmont Hairpin Monaco", include: true, hasFile: false },
-      { id: "16", type: "sightseeing", name: "Oceanographic Museum", time: "Afternoon", badgeText: "Reserved", badgeColor: "green", note: "World-class aquarium.", mapLink: "https://maps.google.com/?q=Musée+océanographique+de+Monaco", searchLoc: "Oceanographic Museum Monaco", include: true, hasFile: false },
-      { id: "17", type: "sightseeing", name: "Prince's Palace", time: "Afternoon", badgeText: "Reserved", badgeColor: "green", note: "Views over the harbor.", mapLink: "https://maps.google.com/?q=Prince's+Palace+Monaco", searchLoc: "Prince's Palace Monaco", include: true, hasFile: false },
-      { id: "18", type: "food", name: "La Môme Monte-Carlo", time: "7:30pm", badgeText: "Reserved", badgeColor: "green", note: "Dinner.", mapLink: "https://maps.google.com/?q=La+Môme+Monte-Carlo+Monaco", searchLoc: "La Môme Monte-Carlo", include: true, hasFile: false }
+      { id: "12", type: "food", name: "HOBO Coffee", time: "Morning", badgeText: "Food", badgeColor: "coral", searchLoc: "HOBO Coffee Nice", include: true },
+      { id: "13", type: "sightseeing", name: "Promenade des Anglais", time: "Morning", badgeText: "Walk", badgeColor: "blue", searchLoc: "Promenade des Anglais", include: true },
+      { id: "14", type: "food", name: "Chez Acchiardo", time: "12:30 PM", badgeText: "Reserved", badgeColor: "green", searchLoc: "Chez Acchiardo Nice", include: true },
+      { id: "15", type: "sightseeing", name: "Oceanographic Museum", time: "Afternoon", badgeText: "Reserved", badgeColor: "green", searchLoc: "Oceanographic Museum Monaco", include: true },
+      { id: "16", type: "sightseeing", name: "Prince's Palace", time: "Afternoon", badgeText: "Reserved", badgeColor: "green", searchLoc: "Prince's Palace Monaco", include: true },
+      { id: "18", type: "food", name: "La Môme Monte-Carlo", time: "7:30 PM", badgeText: "Reserved", badgeColor: "green", searchLoc: "La Môme Monte-Carlo", include: true }
     ]
   },
-   "jul1": {
-    navLabel: "Jul 1 — Nice→Cagnard",
-    title: "July 1 — Old Nice & Move to Château Le Cagnard",
-    sub: "Coffee · Castle Hill · Snorkeling · Move to Cagnes-sur-Mer",
-    tips: [
-      { label: "New hotel", val: "Château Le Cagnard (Jul 1–5)" }
-    ],
+  "jul1": {
+    navLabel: "Jul 1 (Cagnard)",
+    title: "Move to Cagnard",
+    sub: "Old Nice morning",
+    tips: [{ label: "Activity", val: "Snorkeling at 12:15pm" }],
     stops: [
-      { id: "19", type: "food", name: "La Claque Coffee Shop", time: "Morning", badgeText: "Food", badgeColor: "coral", note: "8 Rue du Pont Vieux", mapLink: "https://maps.google.com/?q=La+Claque+Coffee+Shop+Nice+France", searchLoc: "La Claque Coffee Shop Nice", include: true, hasFile: false },
-      { id: "20", type: "sightseeing", name: "Castle Hill & Cascade", time: "Mid-morning", badgeText: "Sightseeing", badgeColor: "blue", note: "Stunning 360° views.", mapLink: "https://maps.google.com/?q=Colline+du+Château+Nice+France", searchLoc: "Castle Hill Nice", include: true, hasFile: false },
-      { id: "21", type: "sightseeing", name: "Snorkeling — Port Lympia", time: "12:15pm", badgeText: "Activity", badgeColor: "blue", note: "13 Quai des Deux Emmanuels", mapLink: "https://maps.google.com/?q=Port+Lympia+Nice+France", searchLoc: "Port Lympia Nice", include: true, hasFile: false },
-      { id: "22", type: "hotel", name: "Château Le Cagnard Hotel", time: "Check-in", badgeText: "Hotel", badgeColor: "green", note: "54 Rue Sous Barri, Cagnes-sur-Mer", mapLink: "https://maps.google.com/?q=Chateau+Le+Cagnard+Cagnes-sur-Mer+France", searchLoc: "Château Le Cagnard Cagnes-sur-Mer", include: true, hasFile: false }
+      { id: "19", type: "food", name: "La Claque Coffee", time: "Morning", badgeText: "Food", badgeColor: "coral", searchLoc: "La Claque Coffee Shop Nice", include: true },
+      { id: "20", type: "sightseeing", name: "Castle Hill", time: "Mid-morning", badgeText: "View", badgeColor: "blue", searchLoc: "Castle Hill Nice", include: true },
+      { id: "21", type: "sightseeing", name: "Snorkeling", time: "12:15 PM", badgeText: "Activity", badgeColor: "blue", searchLoc: "Port Lympia Nice", include: true },
+      { id: "22", type: "hotel", name: "Château Le Cagnard", time: "Afternoon", badgeText: "Check-in", badgeColor: "green", searchLoc: "Château Le Cagnard Cagnes-sur-Mer", include: true }
+    ]
+  },
+  "jul2": {
+    navLabel: "Jul 2 (Provence)",
+    title: "Lavender Fields",
+    sub: "Verdon Gorge trip",
+    tips: [{ label: "Lunch", val: "Pack from Lidl" }],
+    stops: [
+      { id: "j2_2", type: "sightseeing", name: "Lavandes Angelvin", time: "Mid-morning", badgeText: "Fields", badgeColor: "blue", searchLoc: "Lavandes Angelvin", include: true },
+      { id: "j2_3", type: "sightseeing", name: "Verdon Gorge Swim", time: "Afternoon", badgeText: "Swim", badgeColor: "blue", searchLoc: "Sainte-Croix-du-Verdon", include: true },
+      { id: "j2_4", type: "food", name: "Fleur de Sel", time: "7:30 PM", badgeText: "Reserved", badgeColor: "green", searchLoc: "Fleur de Sel", include: true }
+    ]
+  },
+  "jul3": {
+    navLabel: "Jul 3 (Cannes)",
+    title: "Cannes Day Trip",
+    sub: "Beach club & La Croisette",
+    tips: [{ label: "Reserved", val: "Palais Stéphanie (9am)" }],
+    stops: [
+      { id: "j3_1", type: "sightseeing", name: "Stéphanie Beach Club", time: "9am-1pm", badgeText: "Reserved", badgeColor: "green", searchLoc: "Palais Stéphanie Beach Cannes", include: true },
+      { id: "j3_2", type: "sightseeing", name: "Walk La Croisette", time: "Afternoon", badgeText: "Walk", badgeColor: "blue", searchLoc: "Boulevard de la Croisette Cannes", include: true },
+      { id: "j3_4", type: "food", name: "Restaurant Bella", time: "7:30 PM", badgeText: "Reserved", badgeColor: "green", searchLoc: "Restaurant Bella Cannes", include: true }
+    ]
+  },
+  "jul4": {
+    navLabel: "Jul 4 (Antibes)",
+    title: "Antibes Explorer",
+    sub: "Market & Trails",
+    tips: [{ label: "Dinner", val: "Le P'tit Cageot" }],
+    stops: [
+      { id: "j4_1", type: "sightseeing", name: "Flea Market", time: "Morning", badgeText: "Market", badgeColor: "blue", searchLoc: "Place Nationale Antibes", include: true },
+      { id: "j4_2", type: "sightseeing", name: "Sentier des Douaniers", time: "Midday", badgeText: "Hike", badgeColor: "blue", searchLoc: "Sentier des Douaniers Antibes", include: true },
+      { id: "j4_3", type: "sightseeing", name: "Musée Picasso", time: "Afternoon", badgeText: "Museum", badgeColor: "blue", searchLoc: "Musée Picasso Antibes", include: true },
+      { id: "j4_4", type: "food", name: "Le P'tit Cageot", time: "Evening", badgeText: "Dinner", badgeColor: "coral", searchLoc: "Le P'tit Cageot Antibes", include: true }
+    ]
+  },
+  "jul5": {
+    navLabel: "Jul 5 (Paris)",
+    title: "Hello Paris",
+    sub: "Travel & Check-in",
+    tips: [{ label: "Hotel", val: "Adèle & Jules" }],
+    stops: [
+      { id: "j5_1", type: "transit", name: "Flight to Paris", time: "3:20 PM", badgeText: "Flight", badgeColor: "gray", include: false },
+      { id: "j5_2", type: "hotel", name: "Adèle & Jules", time: "Afternoon", badgeText: "Check-in", badgeColor: "green", searchLoc: "Hotel Adele & Jules Paris", include: true },
+      { id: "j5_3", type: "sightseeing", name: "Lafayette Rooftop", time: "Evening", badgeText: "View", badgeColor: "blue", searchLoc: "Galeries Lafayette Paris", include: true },
+      { id: "j5_4", type: "food", name: "Poni — Dinner", time: "8:00 PM", badgeText: "Reserved", badgeColor: "green", searchLoc: "Poni Paris", include: true }
     ]
   },
   "jul6": {
-    navLabel: "Jul 6 — Paris",
-    title: "July 6 — Classic Paris",
-    sub: "Tuileries · Orangerie · Arc de Triomphe · Le Relais de l'Entrecôte",
-    tips: [
-      { label: "Dinner", val: "Le Relais de l'Entrecôte — opens 6:30pm" }
-    ],
+    navLabel: "Jul 6 (Paris)",
+    title: "Classic Paris",
+    sub: "Museums and Steak",
+    tips: [{ label: "Dinner", val: "Entrecôte (Queue at 6:10pm)" }],
     stops: [
-      { id: "23", type: "sightseeing", name: "Tuileries Garden", time: "Morning", badgeText: "Sightseeing", badgeColor: "blue", note: "", mapLink: "https://maps.google.com/?q=Tuileries+Garden+Paris+France", searchLoc: "Tuileries Garden Paris", include: true, hasFile: false },
-      { id: "24", type: "sightseeing", name: "Musée de l'Orangerie", time: "11am", badgeText: "Culture", badgeColor: "blue", note: "Monet's Water Lilies", mapLink: "https://maps.google.com/?q=Musée+de+l%27Orangerie+Paris+France", searchLoc: "Musée de l'Orangerie Paris", include: true, hasFile: false },
-      { id: "25", type: "sightseeing", name: "Arc de Triomphe", time: "3:10pm", badgeText: "Sightseeing", badgeColor: "blue", note: "Climb to the top.", mapLink: "https://maps.google.com/?q=Arc+de+Triomphe+Paris+France", searchLoc: "Arc de Triomphe Paris", include: true, hasFile: false },
-      { id: "26", type: "food", name: "Le Relais de l'Entrecôte", time: "6:10pm", badgeText: "No res.", badgeColor: "amber", note: "Steak frites.", mapLink: "https://maps.google.com/?q=Le+Relais+de+l%27Entrecôte+Saint-Honoré+Paris+France", searchLoc: "Le Relais de l'Entrecôte Saint-Honoré Paris", include: true, hasFile: false }
+      { id: "23", type: "sightseeing", name: "Tuileries Garden", time: "Morning", badgeText: "Walk", badgeColor: "blue", searchLoc: "Tuileries Garden Paris", include: true },
+      { id: "24", type: "sightseeing", name: "Musée de l'Orangerie", time: "11:00 AM", badgeText: "Museum", badgeColor: "blue", searchLoc: "Musée de l'Orangerie Paris", include: true },
+      { id: "25", type: "sightseeing", name: "Arc de Triomphe", time: "3:10 PM", badgeText: "View", badgeColor: "blue", searchLoc: "Arc de Triomphe Paris", include: true },
+      { id: "26", type: "food", name: "Le Relais de l'Entrecôte", time: "6:10 PM", badgeText: "Queue", badgeColor: "amber", searchLoc: "Le Relais de l'Entrecôte Saint-Honoré Paris", include: true }
+    ]
+  },
+  "jul7": {
+    navLabel: "Jul 7 (Paris)",
+    title: "Montmartre",
+    sub: "Left Bank exploration",
+    tips: [{ label: "Dinner", val: "Alfi's (7:30pm)" }],
+    stops: [
+      { id: "j7_1", type: "transit", name: "Metro to Abbesses", time: "Morning", badgeText: "Transit", badgeColor: "gray", searchLoc: "Abbesses Paris", include: true },
+      { id: "j7_3", type: "sightseeing", name: "Musée d'Orsay", time: "1:00 PM", badgeText: "Museum", badgeColor: "blue", searchLoc: "Musée d'Orsay Paris", include: true },
+      { id: "j7_4", type: "sightseeing", name: "Jardin du Luxembourg", time: "3:00 PM", badgeText: "Park", badgeColor: "blue", searchLoc: "Jardin du Luxembourg Paris", include: true },
+      { id: "j7_5", type: "food", name: "Alfi's Paris", time: "7:30 PM", badgeText: "Reserved", badgeColor: "green", searchLoc: "Alfi's Paris", include: true }
+    ]
+  },
+  "jul8": {
+    navLabel: "Jul 8 (Depart)",
+    title: "Heading Home",
+    sub: "Paris to MKE",
+    tips: [{ label: "Breakfast", val: "Mamiche Croissants" }],
+    stops: [
+      { id: "j8_1", type: "food", name: "Boulangerie Mamiche", time: "Morning", badgeText: "Pastry", badgeColor: "coral", searchLoc: "Boulangerie Mamiche Paris", include: true },
+      { id: "j8_2", type: "transit", name: "Flight Home", time: "9:10 AM", badgeText: "Transit", badgeColor: "gray", include: false }
     ]
   }
 };
 
 let itineraryData = {};
-let currentDayId = "jun28";
+let currentDayId = "overview";
 let editingStopId = null;
 
-// The Missing Piece: Persistence for Text Edits
+// Gestures (Swipe to Reveal)
+let startX = 0;
+let currentX = 0;
+let activeSwipeItem = null;
+
+function setupGestures() {
+    const wrappers = document.querySelectorAll('.card-wrapper');
+    wrappers.forEach(wrap => {
+        wrap.addEventListener('touchstart', e => {
+            if(activeSwipeItem && activeSwipeItem !== wrap) activeSwipeItem.style.transform = 'translateX(0)';
+            startX = e.touches[0].clientX;
+            wrap.style.transition = 'none';
+        });
+        wrap.addEventListener('touchmove', e => {
+            currentX = e.touches[0].clientX;
+            let diff = currentX - startX;
+            if(diff < 0 && diff > -120) wrap.style.transform = `translateX(${diff}px)`;
+        });
+        wrap.addEventListener('touchend', e => {
+            wrap.style.transition = 'transform 0.2s ease-out';
+            let diff = currentX - startX;
+            if(diff < -40) {
+                wrap.style.transform = 'translateX(-120px)';
+                activeSwipeItem = wrap;
+            } else {
+                wrap.style.transform = 'translateX(0)';
+                if(activeSwipeItem === wrap) activeSwipeItem = null;
+            }
+        });
+    });
+}
+
+// Data Load
 function loadData() {
-    const saved = localStorage.getItem('honeymoonApp_v5');
+    const saved = localStorage.getItem('honeymoonMobile_v1');
     if (saved) {
         try {
             itineraryData = JSON.parse(saved);
-        } catch(e) {
-            itineraryData = JSON.parse(JSON.stringify(defaultItineraryData));
-        }
-    } else {
-        itineraryData = JSON.parse(JSON.stringify(defaultItineraryData));
-    }
+            for(let key in defaultItineraryData) if(!itineraryData[key]) itineraryData[key] = defaultItineraryData[key];
+        } catch(e) { itineraryData = JSON.parse(JSON.stringify(defaultItineraryData)); }
+    } else itineraryData = JSON.parse(JSON.stringify(defaultItineraryData));
     renderApp();
 }
 
-function saveTextData() {
-    localStorage.setItem('honeymoonApp_v5', JSON.stringify(itineraryData));
-}
+function saveTextData() { localStorage.setItem('honeymoonMobile_v1', JSON.stringify(itineraryData)); }
 
-function resetToDefault() {
-    if(confirm("Are you sure you want to completely reset the itinerary back to the original? This will delete all your edits and added stops.")) {
-        localStorage.removeItem('honeymoonApp_v5');
-        // Clear all files from DB
-        if(db) {
-            const transaction = db.transaction(["attachments"], "readwrite");
-            transaction.objectStore("attachments").clear();
-        }
-        location.reload();
-    }
-}
-
+// Render Logic
 function renderApp() {
   renderNav();
   renderContent();
+  
+  // Hide FAB map button if no stops are included
+  const day = itineraryData[currentDayId];
+  const hasMapStops = day.stops.some(s => s.include && s.searchLoc);
+  document.getElementById('fab-map').style.display = hasMapStops ? 'flex' : 'none';
 }
 
 function renderNav() {
   const container = document.getElementById('nav-container');
   container.innerHTML = '';
-  
   Object.keys(itineraryData).forEach(dayId => {
-    const btn = document.createElement('button');
-    btn.className = `nav-btn ${dayId === currentDayId ? 'active' : ''}`;
+    const btn = document.createElement('div');
+    btn.className = `nav-pill ${dayId === 'overview' ? 'overview' : ''} ${dayId === currentDayId ? 'active' : ''}`;
     btn.textContent = itineraryData[dayId].navLabel;
-    btn.onclick = () => switchDay(dayId);
+    btn.onclick = () => { 
+        currentDayId = dayId; 
+        document.getElementById('content-area').scrollTo(0,0);
+        renderApp();
+        // Scroll nav to center active pill
+        btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    };
     container.appendChild(btn);
   });
-}
-
-function switchDay(dayId) {
-  currentDayId = dayId;
-  renderNav();
-  renderContent();
 }
 
 function toggleRouteInclude(dayId, stopId) {
   const stop = itineraryData[dayId].stops.find(s => s.id === stopId);
   if(stop) {
     stop.include = !stop.include;
-    saveTextData(); // Save to localStorage
-    renderContent();
+    saveTextData(); 
+    renderApp();
   }
 }
 
 function deleteStop(dayId, stopId) {
-  if(confirm("Remove this stop from your itinerary?")) {
+  if(confirm("Remove this stop?")) {
     itineraryData[dayId].stops = itineraryData[dayId].stops.filter(s => s.id !== stopId);
-    removeAttachmentDB(stopId); // clean up file if it exists
-    saveTextData(); // Save to localStorage
-    renderContent();
+    removeAttachmentDB(stopId); 
+    saveTextData(); 
+    renderApp();
   }
 }
 
-function removeAttachmentState(dayId, stopId) {
-  if(confirm("Remove the attached file from this stop?")) {
+function removeFile(dayId, stopId) {
+  if(confirm("Remove file?")) {
     const stop = itineraryData[dayId].stops.find(s => s.id === stopId);
-    if(stop) {
-       stop.hasFile = false;
-       stop.fileName = null;
-    }
+    stop.hasFile = false; stop.fileName = null;
     removeAttachmentDB(stopId);
-    saveTextData(); // Save to localStorage
-    renderContent();
+    saveTextData(); renderApp();
   }
 }
 
-function openRoute(dayId) {
-  const stops = itineraryData[dayId].stops
-    .filter(s => s.include && s.searchLoc)
-    .map(s => encodeURIComponent(s.searchLoc));
-
-  if(stops.length < 2){
-    alert("Need at least 2 checked route stops that have valid search locations.");
-    return;
-  }
-
-  const url = "https://www.google.com/maps/dir//" + stops.join("/");
-  window.open(url,"_blank");
+function openRoute() {
+  const stops = itineraryData[currentDayId].stops.filter(s => s.include && s.searchLoc).map(s => encodeURIComponent(s.searchLoc));
+  if(stops.length < 2) { alert("Need at least 2 checked locations."); return; }
+  window.open("https://www.google.com/maps/dir//" + stops.join("/"), "_blank");
 }
 
 function renderContent() {
@@ -440,86 +496,81 @@ function renderContent() {
   const day = itineraryData[currentDayId];
   
   let tipsHtml = day.tips.map(t => 
-    `<div class="tip-card"><div class="tip-label">${t.label}</div><div class="tip-val">${t.val}</div></div>`
+    `<div class="tip-chip"><div class="tip-label">${t.label}</div><div class="tip-val">${t.val}</div></div>`
   ).join('');
 
   let stopsHtml = day.stops.map(s => `
-    <div class="stop ${!s.include ? 'excluded' : ''}" data-type="${s.type}">
-      <div class="stop-card">
-        <div class="card-actions">
-          <button class="icon-btn edit" onclick="openEditModal('${currentDayId}', '${s.id}')" title="Edit stop">Edit</button>
-          <button class="icon-btn delete" onclick="deleteStop('${currentDayId}', '${s.id}')" title="Remove stop">Delete</button>
-        </div>
-        <div class="stop-top">
-          <div class="stop-info">
-            <div class="stop-name">${s.name}</div>
-            <div class="stop-time">${s.time}</div>
-          </div>
-          <div class="badges-container">
-            <span class="badge badge-${s.badgeColor}">${s.badgeText}</span>
-          </div>
-        </div>
-        ${s.note ? `<div class="stop-note">${s.note}</div>` : ''}
-        
-        <div class="card-footer">
-            <label class="route-toggle">
-              <input type="checkbox" ${s.include ? 'checked' : ''} onchange="toggleRouteInclude('${currentDayId}', '${s.id}')">
-              Include in Route
-            </label>
+    <div class="stop-item ${!s.include ? 'excluded' : ''}" data-type="${s.type}">
+      <div class="time-col">
+        <div class="time-text">${s.time.replace('AM','am').replace('PM','pm').replace(' ','<br>')}</div>
+        <div class="dot"></div>
+        <div class="line"></div>
+      </div>
+      
+      <div class="card-wrapper">
+          <div class="card">
+            <div class="card-top">
+              <div class="name">${s.name}</div>
+              <span class="badge badge-${s.badgeColor}">${s.badgeText}</span>
+            </div>
+            ${s.note ? `<div class="note">${s.note}</div>` : ''}
             
-            ${s.hasFile ? `
-                <button class="file-btn" onclick="openAttachment('${s.id}')">📄 View ${s.fileName || 'Ticket'}</button>
-                <button class="file-btn remove" onclick="removeAttachmentState('${currentDayId}', '${s.id}')" title="Remove File">✖</button>
-            ` : ''}
-
-            ${s.mapLink ? `<a class="map-btn" href="${s.mapLink}" target="_blank">🗺 Open in Maps</a>` : ''}
-        </div>
+            <div class="card-actions">
+                <label class="custom-checkbox">
+                  <input type="checkbox" ${s.include ? 'checked' : ''} onchange="toggleRouteInclude('${currentDayId}', '${s.id}')">
+                  Map
+                </label>
+                
+                <div style="display: flex; gap: 8px;">
+                    ${s.hasFile ? `
+                        <button class="file-chip" onclick="openAttachment('${s.id}')">📄 File</button>
+                        <button class="file-chip del" onclick="removeFile('${currentDayId}', '${s.id}')">✕</button>
+                    ` : ''}
+                </div>
+            </div>
+          </div>
+          
+          <!-- Hidden Swipe Actions -->
+          <div class="card-actions-hidden">
+             <button class="hidden-btn btn-edit" onclick="openEditModal('${currentDayId}', '${s.id}')">Edit</button>
+             <button class="hidden-btn btn-del" onclick="deleteStop('${currentDayId}', '${s.id}')">Del</button>
+          </div>
       </div>
     </div>
   `).join('');
 
   area.innerHTML = `
     <div class="day-panel active">
-      <div class="day-header">
-        <div class="day-title">${day.title}</div>
-        <div class="day-sub">${day.sub}</div>
-      </div>
+      <div class="day-title">${day.title}</div>
+      <div class="day-sub">${day.sub}</div>
+      <div class="tips-scroller">${tipsHtml}</div>
       
-      <div class="controls-bar">
-        <button class="action-btn btn-route" onclick="openRoute('${currentDayId}')">🗺 Generate Route Map</button>
-        <button class="action-btn btn-add" onclick="openAddModal()">➕ Add New Stop Here</button>
-        <button class="action-btn btn-reset" onclick="resetToDefault()">⟲ Reset Itinerary</button>
-      </div>
-
-      <div class="tips-grid">
-        ${tipsHtml}
-      </div>
+      ${stopsHtml.length > 0 ? '<div class="swipe-note">← Swipe item to edit or delete</div>' : ''}
       
       <div class="timeline">
         ${stopsHtml}
       </div>
+      
+      <button style="width: 100%; border: 1px dashed var(--border); background: transparent; padding: 12px; border-radius: 8px; color: var(--text-sub); font-weight: 600; font-size: 14px; margin-top: 10px;" onclick="openAddModal()">+ Add Custom Stop Here</button>
     </div>
   `;
+  
+  setupGestures();
 }
 
 // Modal Logic
 function openAddModal() {
   editingStopId = null;
-  document.getElementById('modal-title').textContent = "Add New Stop";
-  
-  // Clear inputs
-  document.getElementById('new-name').value = '';
-  document.getElementById('new-location').value = '';
-  document.getElementById('new-time').value = '';
-  document.getElementById('new-type').value = 'sightseeing';
-  document.getElementById('new-note').value = '';
-  document.getElementById('new-file').value = '';
+  document.getElementById('modal-title').textContent = "Add Stop";
+  document.getElementById('new-name').value = ''; document.getElementById('new-location').value = '';
+  document.getElementById('new-time').value = ''; document.getElementById('new-type').value = 'sightseeing';
+  document.getElementById('new-note').value = ''; document.getElementById('new-file').value = '';
   document.getElementById('current-file-name').textContent = '';
-  
   document.getElementById('stopModal').style.display = 'flex';
 }
 
 function openEditModal(dayId, stopId) {
+  if(activeSwipeItem) activeSwipeItem.style.transform = 'translateX(0)'; // reset swipe
   editingStopId = stopId;
   document.getElementById('modal-title').textContent = "Edit Stop";
   
@@ -531,92 +582,50 @@ function openEditModal(dayId, stopId) {
     document.getElementById('new-type').value = stop.type || 'sightseeing';
     document.getElementById('new-note').value = stop.note || '';
     document.getElementById('new-file').value = '';
-    document.getElementById('current-file-name').textContent = stop.hasFile ? `Current file attached: ${stop.fileName}` : 'No file currently attached.';
+    document.getElementById('current-file-name').textContent = stop.hasFile ? `File attached: ${stop.fileName}` : '';
   }
-  
   document.getElementById('stopModal').style.display = 'flex';
 }
 
-function closeModal() {
-  document.getElementById('stopModal').style.display = 'none';
-  editingStopId = null;
-}
+function closeModal() { document.getElementById('stopModal').style.display = 'none'; editingStopId = null; }
 
 function saveStop() {
   const name = document.getElementById('new-name').value;
+  if(!name) { alert("Name required."); return; }
+  
   const loc = document.getElementById('new-location').value;
   const time = document.getElementById('new-time').value;
   const type = document.getElementById('new-type').value;
   const note = document.getElementById('new-note').value;
   const fileInput = document.getElementById('new-file');
 
-  if(!name) {
-    alert("Stop Name is required.");
-    return;
-  }
-
-  // Derive badge info
-  let badgeColor = "blue";
-  let badgeText = "Custom";
+  let badgeColor = "blue", badgeText = "Custom";
   if(type === "food") { badgeColor = "coral"; badgeText = "Food"; }
   if(type === "hotel") { badgeColor = "green"; badgeText = "Hotel"; }
-  if(type === "night") { badgeColor = "purple"; badgeText = "Night"; }
   if(type === "transit") { badgeColor = "gray"; badgeText = "Transit"; }
   if(type === "sightseeing") { badgeColor = "blue"; badgeText = "Sightseeing"; }
+  if(type === "overview") { badgeColor = "dark"; badgeText = "Milestone"; }
 
   let targetId = editingStopId;
-  let isNew = !targetId;
-
-  if (isNew) {
+  if (!targetId) {
       targetId = Date.now().toString();
-      const newStop = {
-          id: targetId,
-          type: type,
-          name: name,
-          time: time || "TBD",
-          badgeText: badgeText,
-          badgeColor: badgeColor,
-          note: note,
-          mapLink: "",
-          searchLoc: loc,
-          include: !!loc,
-          hasFile: false,
-          fileName: null
-      };
-      itineraryData[currentDayId].stops.push(newStop);
+      itineraryData[currentDayId].stops.push({ id: targetId, type, name, time: time||"TBD", badgeText, badgeColor, note, mapLink: "", searchLoc: loc, include: !!loc, hasFile: false, fileName: null });
   } else {
       const stop = itineraryData[currentDayId].stops.find(s => s.id === targetId);
-      if(stop) {
-          stop.name = name;
-          stop.searchLoc = loc;
-          stop.time = time;
-          stop.type = type;
-          stop.note = note;
-          stop.badgeColor = badgeColor;
-          stop.badgeText = badgeText;
-          if(loc && stop.searchLoc !== loc && !stop.include) {
-             stop.include = true;
-          }
-      }
+      if(stop) { Object.assign(stop, {name, searchLoc:loc, time, type, note, badgeColor, badgeText}); if(loc && !stop.include) stop.include = true; }
   }
 
-  // Handle File Upload if exists
   if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
       const stop = itineraryData[currentDayId].stops.find(s => s.id === targetId);
-      stop.hasFile = true;
-      stop.fileName = file.name;
+      stop.hasFile = true; stop.fileName = file.name;
       saveAttachment(targetId, file, file.name);
   }
 
-  saveTextData(); // Save edits to localStorage
-  closeModal();
-  renderContent();
+  saveTextData(); closeModal(); renderApp();
 }
 
-// Kickoff
 initDB();
-
 </script>
 
 </body>
