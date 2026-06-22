@@ -85,14 +85,17 @@
   .badge-amber { background: #FEF2F2; color: #B91C1C; }
   .badge-dark { background: #F3F4F6; color: #111827; }
 
-  /* Checkbox & File */
+  /* Checkbox & Actions */
   .card-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border);}
   
   .custom-checkbox { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--text-sub);}
   .custom-checkbox input { width: 16px; height: 16px; accent-color: var(--text-main); }
   
+  .order-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: var(--text-sub); cursor: pointer;}
+  .order-btn:active { background: #E5E7EB; }
+
   .file-chip { display: flex; align-items: center; gap: 4px; background: #F3F4F6; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; color: var(--text-main); border: none;}
-  .file-chip.del { background: #FEE2E2; color: #DC2626; padding: 4px; margin-left: 4px;}
+  .file-chip.del { background: #FEE2E2; color: #DC2626; padding: 4px;}
 
   /* Swipe Actions Note */
   .swipe-note { font-size: 11px; text-align: center; color: #9CA3AF; margin-bottom: 10px; font-style: italic;}
@@ -221,7 +224,6 @@ function removeAttachmentDB(stopId) {
 
 function openAttachment(stopId) {
     if(!db) return;
-    // Bypassing mobile Safari popup blocker by opening the tab synchronously first
     let newTab;
     try { newTab = window.open('about:blank', '_blank'); } catch(e) {}
     if(newTab) newTab.document.write('Loading your file...');
@@ -234,7 +236,6 @@ function openAttachment(stopId) {
             if(newTab) {
                 newTab.location.href = url;
             } else {
-                // Fallback approach if window.open totally blocked
                 const a = document.createElement('a');
                 a.href = url;
                 a.target = '_blank';
@@ -451,12 +452,32 @@ function loadData() {
 
 function saveTextData() { localStorage.setItem('honeymoonMobile_v1', JSON.stringify(itineraryData)); }
 
+// Reordering Logic
+function moveStopUp(dayId, stopId) {
+    const stops = itineraryData[dayId].stops;
+    const idx = stops.findIndex(s => s.id === stopId);
+    if(idx > 0) {
+        [stops[idx], stops[idx - 1]] = [stops[idx - 1], stops[idx]];
+        saveTextData();
+        renderApp();
+    }
+}
+
+function moveStopDown(dayId, stopId) {
+    const stops = itineraryData[dayId].stops;
+    const idx = stops.findIndex(s => s.id === stopId);
+    if(idx > -1 && idx < stops.length - 1) {
+        [stops[idx], stops[idx + 1]] = [stops[idx + 1], stops[idx]];
+        saveTextData();
+        renderApp();
+    }
+}
+
 // Render Logic
 function renderApp() {
   renderNav();
   renderContent();
   
-  // Hide FAB map button if no stops are included
   const day = itineraryData[currentDayId];
   const hasMapStops = day.stops.some(s => s.include && s.searchLoc);
   document.getElementById('fab-map').style.display = hasMapStops ? 'flex' : 'none';
@@ -473,7 +494,6 @@ function renderNav() {
         currentDayId = dayId; 
         document.getElementById('content-area').scrollTo(0,0);
         renderApp();
-        // Scroll nav to center active pill
         btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     };
     container.appendChild(btn);
@@ -521,7 +541,7 @@ function renderContent() {
     `<div class="tip-chip"><div class="tip-label">${t.label}</div><div class="tip-val">${t.val}</div></div>`
   ).join('');
 
-  let stopsHtml = day.stops.map(s => `
+  let stopsHtml = day.stops.map((s, index) => `
     <div class="stop-item ${!s.include ? 'excluded' : ''}" data-type="${s.type}">
       <div class="time-col">
         <div class="time-text">${s.time.replace('AM','am').replace('PM','pm').replace(' ','<br>')}</div>
@@ -543,9 +563,12 @@ function renderContent() {
                   Map
                 </label>
                 
-                <div style="display: flex; gap: 8px;">
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    ${index > 0 ? `<button class="order-btn" onclick="moveStopUp('${currentDayId}', '${s.id}')">↑</button>` : ''}
+                    ${index < day.stops.length - 1 ? `<button class="order-btn" onclick="moveStopDown('${currentDayId}', '${s.id}')">↓</button>` : ''}
+                    
                     ${s.hasFile ? `
-                        <button class="file-chip" onclick="openAttachment('${s.id}')">📄 File</button>
+                        <button class="file-chip" onclick="openAttachment('${s.id}')" style="margin-left: 4px;">📄</button>
                         <button class="file-chip del" onclick="removeFile('${currentDayId}', '${s.id}')">✕</button>
                     ` : ''}
                 </div>
