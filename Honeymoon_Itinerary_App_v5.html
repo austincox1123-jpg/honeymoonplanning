@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Honeymoon Itinerary</title>
+<style>
+  :root {
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f9f9f9;
+    --color-text-primary: #333333;
+    --color-text-secondary: #666666;
+    --color-text-tertiary: #999999;
+    --color-border-secondary: #cccccc;
+    --color-border-tertiary: #eeeeee;
+    --border-radius-lg: 12px;
+    --border-radius-md: 8px;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background: var(--color-background-secondary); padding: 20px; }
+  .container { max-width: 900px; margin: 0 auto; background: var(--color-background-primary); padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+  
+  /* Navigation */
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 15px; border-bottom: 1px solid var(--color-border-tertiary); margin-bottom: 20px; }
+  .nav-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); font-size: 14px; cursor: pointer; transition: all 0.2s ease; }
+  .nav-btn:hover { background: var(--color-background-secondary); }
+  .nav-btn.active { background: #185FA5; color: #E6F1FB; border-color: #185FA5; }
+  
+  /* Legend */
+  .legend { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; padding: 10px 0; border-bottom: 1px solid var(--color-border-tertiary); }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--color-text-secondary); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  
+  /* Day Panel */
+  .day-panel { display: none; }
+  .day-panel.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .day-header { margin-bottom: 20px; }
+  .day-title { font-size: 24px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 5px;}
+  .day-sub { font-size: 14px; color: var(--color-text-secondary); }
+  
+  /* Tips Grid */
+  .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 25px; }
+  .tip-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 15px; border: 1px solid var(--color-border-tertiary);}
+  .tip-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;}
+  .tip-val { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+
+  /* Controls */
+  .controls-bar { display: flex; gap: 10px; margin-bottom: 25px; align-items: center; }
+  .action-btn { padding: 10px 18px; border-radius: 8px; border: none; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-route { background: #185FA5; color: white; }
+  .btn-route:hover { background: #124a82; }
+  .btn-add { background: #E6F1FB; color: #185FA5; border: 1px solid #cce0f5; }
+  .btn-add:hover { background: #d0e5f9; }
+  .btn-reset { background: #fee; color: #c0392b; border: 1px solid #fcc; margin-left: auto;}
+  .btn-reset:hover { background: #fcc; }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--color-border-tertiary); }
+  
+  /* Stops */
+  .stop { position: relative; margin-bottom: 20px; padding-left: 20px; transition: opacity 0.3s ease; }
+  .stop.excluded { opacity: 0.4; }
+  .stop::before { content: ''; position: absolute; left: -21px; top: 12px; width: 10px; height: 10px; border-radius: 50%; background: #378ADD; border: 2px solid var(--color-background-primary); box-shadow: 0 0 0 2px #378ADD; z-index: 1; }
+  
+  /* Stop Types Colors */
+  .stop[data-type="food"]::before { background: #D85A30; box-shadow: 0 0 0 2px #D85A30; }
+  .stop[data-type="hotel"]::before { background: #1D9E75; box-shadow: 0 0 0 2px #1D9E75; }
+  .stop[data-type="night"]::before { background: #7F77DD; box-shadow: 0 0 0 2px #7F77DD; }
+  .stop[data-type="transit"]::before { background: #888780; box-shadow: 0 0 0 2px #888780; }
+  .stop[data-type="sightseeing"]::before { background: #378ADD; box-shadow: 0 0 0 2px #378ADD; }
+  
+  .stop-card { background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: transform 0.2s, box-shadow 0.2s; position: relative;}
+  .stop-card:hover { border-color: var(--color-border-secondary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+  
+  .stop-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  .stop-info { flex: 1; }
+  .stop-name { font-size: 16px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 4px;}
+  .stop-time { font-size: 13px; color: var(--color-text-secondary); font-weight: 500; }
+  .stop-note { font-size: 14px; color: var(--color-text-secondary); line-height: 1.5; padding-top: 10px; border-top: 1px solid var(--color-border-tertiary); margin-bottom: 10px;}
+  
+  /* Action Bars inside cards */
+  .card-footer { display: flex; gap: 15px; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--color-border-tertiary); flex-wrap: wrap;}
+  
+  .route-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--color-text-secondary); background: #f8f9fa; padding: 6px 10px; border-radius: 6px; cursor: pointer; border: 1px solid #e9ecef;}
+  .route-toggle input { cursor: pointer; width: 14px; height: 14px; }
+  
+  .file-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: white; background: #2c3e50; font-weight: 500; cursor: pointer; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; transition: background 0.2s;}
+  .file-btn:hover { background: #34495e; }
+  .file-btn.remove { background: #e74c3c; padding: 6px; }
+  .file-btn.remove:hover { background: #c0392b; }
+
+  .map-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #185FA5; font-weight: 500; cursor: pointer; background: none; border: none; padding: 0; text-decoration: none; margin-left: auto;}
+  .map-btn:hover { text-decoration: underline; }
+
+  /* Badges */
+  .badges-container { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .badge { font-size: 12px; padding: 4px 10px; border-radius: 12px; white-space: nowrap; font-weight: 500;}
+  .badge-blue { background: #E6F1FB; color: #185FA5; }
+  .badge-coral { background: #FAECE7; color: #993C1D; }
+  .badge-green { background: #EAF3DE; color: #3B6D11; }
+  .badge-purple { background: #EEEDFE; color: #534AB7; }
+  .badge-gray { background: #F1EFE8; color: #5F5E5A; }
+  .badge-amber { background: #FAEEDA; color: #854F0B; }
+
+  /* Action Buttons (Edit/Delete) */
+  .card-actions { position: absolute; top: 16px; right: 16px; display: flex; gap: 8px; opacity: 0; transition: opacity 0.2s; }
+  .stop-card:hover .card-actions { opacity: 1; }
+  .icon-btn { background: var(--color-background-secondary); border: 1px solid var(--color-border-tertiary); border-radius: 4px; padding: 4px 8px; font-size: 12px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+  .icon-btn.edit { color: #185FA5; }
+  .icon-btn.edit:hover { background: #E6F1FB; border-color: #185FA5; }
+  .icon-btn.delete { color: #dc3545; }
+  .icon-btn.delete:hover { background: #fdf2f2; border-color: #dc3545; }
+
+  /* Modal Form */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+  .modal { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;}
+  .modal h3 { margin-bottom: 20px; color: var(--color-text-primary); }
+  .form-group { margin-bottom: 15px; }
+  .form-group label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: 500; color: var(--color-text-secondary); }
+  .form-group input[type="text"], .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--color-border-secondary); border-radius: 6px; font-family: inherit; font-size: 14px; }
+  .form-group input[type="file"] { width: 100%; padding: 8px; border: 1px dashed var(--color-border-secondary); border-radius: 6px; font-size: 13px; background: #fcfcfc;}
+  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
+  .btn-cancel { padding: 10px 15px; border: 1px solid var(--color-border-secondary); background: white; border-radius: 6px; cursor: pointer; }
+  .btn-save { padding: 10px 20px; background: #185FA5; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+  
+  .file-name-display { font-size: 12px; color: #27ae60; margin-top: 5px; font-weight: 500;}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="nav" id="nav-container">
+    <!-- Nav buttons generated via JS -->
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#378ADD"></div>Sightseeing</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#D85A30"></div>Food & drink</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"></div>Hotel</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#7F77DD"></div>Nightlife</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#888780"></div>Transit</div>
+  </div>
+
+  <div id="content-area">
+    <!-- Day content generated via JS -->
+  </div>
+</div>
+
+<!-- Add/Edit Stop Modal -->
+<div class="modal-overlay" id="stopModal">
+  <div class="modal">
+    <h3 id="modal-title">Add New Stop</h3>
+    <div class="form-group">
+      <label>Location / Stop Name</label>
+      <input type="text" id="new-name" placeholder="e.g., Eiffel Tower">
+    </div>
+    <div class="form-group">
+      <label>Google Maps Location Search (Required for Routing)</label>
+      <input type="text" id="new-location" placeholder="e.g., Eiffel Tower, Paris">
+    </div>
+    <div class="form-group">
+      <label>Time</label>
+      <input type="text" id="new-time" placeholder="e.g., 2:00 PM">
+    </div>
+    <div class="form-group">
+      <label>Type</label>
+      <select id="new-type">
+        <option value="sightseeing">Sightseeing</option>
+        <option value="food">Food & Drink</option>
+        <option value="hotel">Hotel</option>
+        <option value="night">Nightlife</option>
+        <option value="transit">Transit</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="new-note" rows="3" placeholder="Any details..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Attach Ticket / PDF / Image (Saved Locally)</label>
+      <input type="file" id="new-file" accept=".pdf,image/*,.png,.jpg,.jpeg">
+      <div id="current-file-name" class="file-name-display"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveStop()">Save Stop</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Database Setup for storing large binary files (PDFs/Images) entirely offline in the browser
+const dbName = "HoneymoonItineraryDB";
+let db;
+
+const initDB = () => {
+    const request = indexedDB.open(dbName, 1);
+    request.onupgradeneeded = function(event) {
+        db = event.target.result;
+        if (!db.objectStoreNames.contains("attachments")) {
+            db.createObjectStore("attachments");
+        }
+    };
+    request.onsuccess = function(event) {
+        db = event.target.result;
+        loadData(); // Load text data from localStorage, then render
+    };
+    request.onerror = function(event) {
+        console.error("Database error: " + event.target.errorCode);
+        loadData(); 
+    };
+};
+
+function saveAttachment(stopId, fileBlob, fileName) {
+    if(!db) return;
+    const transaction = db.transaction(["attachments"], "readwrite");
+    const store = transaction.objectStore("attachments");
+    store.put({ blob: fileBlob, name: fileName }, stopId);
+}
+
+function removeAttachmentDB(stopId) {
+    if(!db) return;
+    const transaction = db.transaction(["attachments"], "readwrite");
+    const store = transaction.objectStore("attachments");
+    store.delete(stopId);
+}
+
+function openAttachment(stopId) {
+    if(!db) return;
+    const transaction = db.transaction(["attachments"], "readonly");
+    const store = transaction.objectStore("attachments");
+    const request = store.get(stopId);
+    
+    request.onsuccess = function() {
+        const fileData = request.result;
+        if(fileData && fileData.blob) {
+            const url = URL.createObjectURL(fileData.blob);
+            window.open(url, '_blank');
+        } else {
+            alert("File not found in local database.");
+        }
+    };
+}
+
+
+// Default Hardcoded Data Structure
+const defaultItineraryData = {
+  "jun28": {
+    navLabel: "Jun 28 — Nice",
+    title: "June 28 — Arrival in Nice",
+    sub: "Flight from Rome lands 6:30pm · Le Dortoir Boutique Suites, Nice",
+    tips: [
+      { label: "Hotel", val: "Le Dortoir Boutique Suites" },
+      { label: "Note", val: "No elevator — stairs only" }
+    ],
+    stops: [
+      { id: "1", type: "transit", name: "Flight Rome → Nice", time: "5:15pm – 6:30pm", badgeText: "Transit", badgeColor: "gray", note: "", mapLink: "", searchLoc: "", include: false, hasFile: false },
+      { id: "2", type: "transit", name: "Uber to hotel", time: "6:30pm", badgeText: "Transit", badgeColor: "gray", note: "", mapLink: "", searchLoc: "Nice Airport to 11 Rue Paradis", include: true, hasFile: false },
+      { id: "3", type: "hotel", name: "Le Dortoir Boutique Suites", time: "Check-in", badgeText: "Reserved", badgeColor: "green", note: "11 Rue Paradis — rated 4.4 ⭑", mapLink: "https://maps.google.com/?q=Le+Dortoir+Boutique+Suites+Nice+France", searchLoc: "11 Rue Paradis Nice", include: true, hasFile: false },
+      { id: "4", type: "food", name: "La Cucina — Dinner", time: "Evening", badgeText: "Food", badgeColor: "coral", note: "No reservations taken.", mapLink: "https://maps.google.com/?q=LA.+CUCINA+9+Rue+du+Commandant+Raffalli+Nice+France", searchLoc: "La Cucina Nice France", include: true, hasFile: false },
+      { id: "5", type: "night", name: "Le Shapko — Jazz bar", time: "Late night", badgeText: "Optional", badgeColor: "purple", note: "5 Rue Rossetti", mapLink: "https://maps.google.com/?q=Le+Shapko+5+Rue+Rossetti+Nice+France", searchLoc: "Le Shapko Nice France", include: true, hasFile: false }
+    ]
+  },
+  "jun29": {
+    navLabel: "Jun 29 — Eze",
+    title: "June 29 — Eze Village & Cap-Ferrat",
+    sub: "Train to Eze · Coastal walk · Dinner at La Merenda",
+    tips: [
+      { label: "Reservation", val: "La Merenda at 8:30pm · Cash only" },
+      { label: "Transport", val: "Train → Eze, Uber → Cap-Ferrat" }
+    ],
+    stops: [
+      { id: "6", type: "transit", name: "Train to Eze", time: "Morning", badgeText: "Transit", badgeColor: "gray", note: "", mapLink: "", searchLoc: "", include: false, hasFile: false },
+      { id: "7", type: "food", name: "Petit Loup Specialty Coffee", time: "Morning coffee", badgeText: "Food", badgeColor: "coral", note: "12 Rue de la Pise, Eze", mapLink: "https://maps.google.com/?q=Petit+Loup+Specialty+Coffee+Eze+France", searchLoc: "Petit Loup Eze", include: true, hasFile: false },
+      { id: "8", type: "sightseeing", name: "Jardin Exotique d'Eze", time: "Morning", badgeText: "Sightseeing", badgeColor: "blue", note: "Stunning cactus garden.", mapLink: "https://maps.google.com/?q=Jardin+Exotique+Eze+France", searchLoc: "Jardin Exotique Eze", include: true, hasFile: false },
+      { id: "9", type: "food", name: "Lunch: Le Nid d'Aigle", time: "Midday", badgeText: "No res.", badgeColor: "amber", note: "Perched in the village.", mapLink: "", searchLoc: "Le Nid d'Aigle Eze", include: true, hasFile: false },
+      { id: "10", type: "sightseeing", name: "Tour de la presqu'île", time: "Afternoon", badgeText: "Sightseeing", badgeColor: "blue", note: "Coastal walk.", mapLink: "https://maps.google.com/?q=Promenade+du+cap+Saint-Jean-Cap-Ferrat+France", searchLoc: "Saint-Jean-Cap-Ferrat", include: true, hasFile: false },
+      { id: "11", type: "food", name: "La Merenda — Dinner", time: "8:30pm", badgeText: "Cash only", badgeColor: "amber", note: "4 Rue Raoul Bosio.", mapLink: "https://maps.google.com/?q=La+Merenda+4+Rue+Raoul+Bosio+Nice+France", searchLoc: "La Merenda Nice", include: true, hasFile: false }
+    ]
+  },
+  "jun30": {
+    navLabel: "Jun 30 — Monaco",
+    title: "June 30 — Monaco & Monte Carlo",
+    sub: "Train to Monaco · Palace, Museum, Casino · Dinner at La Môme",
+    tips: [
+      { label: "Reserved", val: "Oceanographic Museum, Prince's Palace, La Môme" }
+    ],
+    stops: [
+      { id: "12", type: "food", name: "HOBO Coffee", time: "Morning", badgeText: "Food", badgeColor: "coral", note: "5 Bis Rue Sainte-Réparate.", mapLink: "https://maps.google.com/?q=HOBO+COFFEE+Nice+France", searchLoc: "HOBO Coffee Nice", include: true, hasFile: false },
+      { id: "13", type: "sightseeing", name: "Promenade des Anglais", time: "Morning", badgeText: "Sightseeing", badgeColor: "blue", note: "", mapLink: "https://maps.google.com/?q=Promenade+des+Anglais+Nice+France", searchLoc: "Promenade des Anglais", include: true, hasFile: false },
+      { id: "14", type: "food", name: "Chez Acchiardo — Lunch", time: "12:30pm", badgeText: "Reserved", badgeColor: "green", note: "38 Rue Droite", mapLink: "https://maps.google.com/?q=Chez+Acchiardo+38+Rue+Droite+Nice+France", searchLoc: "Chez Acchiardo Nice", include: true, hasFile: false },
+      { id: "15", type: "sightseeing", name: "F1 Fairmont Hairpin", time: "Afternoon", badgeText: "Sightseeing", badgeColor: "blue", note: "Monaco.", mapLink: "https://maps.google.com/?q=Fairmont+Hairpin+Monaco", searchLoc: "Fairmont Hairpin Monaco", include: true, hasFile: false },
+      { id: "16", type: "sightseeing", name: "Oceanographic Museum", time: "Afternoon", badgeText: "Reserved", badgeColor: "green", note: "World-class aquarium.", mapLink: "https://maps.google.com/?q=Musée+océanographique+de+Monaco", searchLoc: "Oceanographic Museum Monaco", include: true, hasFile: false },
+      { id: "17", type: "sightseeing", name: "Prince's Palace", time: "Afternoon", badgeText: "Reserved", badgeColor: "green", note: "Views over the harbor.", mapLink: "https://maps.google.com/?q=Prince's+Palace+Monaco", searchLoc: "Prince's Palace Monaco", include: true, hasFile: false },
+      { id: "18", type: "food", name: "La Môme Monte-Carlo", time: "7:30pm", badgeText: "Reserved", badgeColor: "green", note: "Dinner.", mapLink: "https://maps.google.com/?q=La+Môme+Monte-Carlo+Monaco", searchLoc: "La Môme Monte-Carlo", include: true, hasFile: false }
+    ]
+  },
+   "jul1": {
+    navLabel: "Jul 1 — Nice→Cagnard",
+    title: "July 1 — Old Nice & Move to Château Le Cagnard",
+    sub: "Coffee · Castle Hill · Snorkeling · Move to Cagnes-sur-Mer",
+    tips: [
+      { label: "New hotel", val: "Château Le Cagnard (Jul 1–5)" }
+    ],
+    stops: [
+      { id: "19", type: "food", name: "La Claque Coffee Shop", time: "Morning", badgeText: "Food", badgeColor: "coral", note: "8 Rue du Pont Vieux", mapLink: "https://maps.google.com/?q=La+Claque+Coffee+Shop+Nice+France", searchLoc: "La Claque Coffee Shop Nice", include: true, hasFile: false },
+      { id: "20", type: "sightseeing", name: "Castle Hill & Cascade", time: "Mid-morning", badgeText: "Sightseeing", badgeColor: "blue", note: "Stunning 360° views.", mapLink: "https://maps.google.com/?q=Colline+du+Château+Nice+France", searchLoc: "Castle Hill Nice", include: true, hasFile: false },
+      { id: "21", type: "sightseeing", name: "Snorkeling — Port Lympia", time: "12:15pm", badgeText: "Activity", badgeColor: "blue", note: "13 Quai des Deux Emmanuels", mapLink: "https://maps.google.com/?q=Port+Lympia+Nice+France", searchLoc: "Port Lympia Nice", include: true, hasFile: false },
+      { id: "22", type: "hotel", name: "Château Le Cagnard Hotel", time: "Check-in", badgeText: "Hotel", badgeColor: "green", note: "54 Rue Sous Barri, Cagnes-sur-Mer", mapLink: "https://maps.google.com/?q=Chateau+Le+Cagnard+Cagnes-sur-Mer+France", searchLoc: "Château Le Cagnard Cagnes-sur-Mer", include: true, hasFile: false }
+    ]
+  },
+  "jul6": {
+    navLabel: "Jul 6 — Paris",
+    title: "July 6 — Classic Paris",
+    sub: "Tuileries · Orangerie · Arc de Triomphe · Le Relais de l'Entrecôte",
+    tips: [
+      { label: "Dinner", val: "Le Relais de l'Entrecôte — opens 6:30pm" }
+    ],
+    stops: [
+      { id: "23", type: "sightseeing", name: "Tuileries Garden", time: "Morning", badgeText: "Sightseeing", badgeColor: "blue", note: "", mapLink: "https://maps.google.com/?q=Tuileries+Garden+Paris+France", searchLoc: "Tuileries Garden Paris", include: true, hasFile: false },
+      { id: "24", type: "sightseeing", name: "Musée de l'Orangerie", time: "11am", badgeText: "Culture", badgeColor: "blue", note: "Monet's Water Lilies", mapLink: "https://maps.google.com/?q=Musée+de+l%27Orangerie+Paris+France", searchLoc: "Musée de l'Orangerie Paris", include: true, hasFile: false },
+      { id: "25", type: "sightseeing", name: "Arc de Triomphe", time: "3:10pm", badgeText: "Sightseeing", badgeColor: "blue", note: "Climb to the top.", mapLink: "https://maps.google.com/?q=Arc+de+Triomphe+Paris+France", searchLoc: "Arc de Triomphe Paris", include: true, hasFile: false },
+      { id: "26", type: "food", name: "Le Relais de l'Entrecôte", time: "6:10pm", badgeText: "No res.", badgeColor: "amber", note: "Steak frites.", mapLink: "https://maps.google.com/?q=Le+Relais+de+l%27Entrecôte+Saint-Honoré+Paris+France", searchLoc: "Le Relais de l'Entrecôte Saint-Honoré Paris", include: true, hasFile: false }
+    ]
+  }
+};
+
+let itineraryData = {};
+let currentDayId = "jun28";
+let editingStopId = null;
+
+// The Missing Piece: Persistence for Text Edits
+function loadData() {
+    const saved = localStorage.getItem('honeymoonApp_v5');
+    if (saved) {
+        try {
+            itineraryData = JSON.parse(saved);
+        } catch(e) {
+            itineraryData = JSON.parse(JSON.stringify(defaultItineraryData));
+        }
+    } else {
+        itineraryData = JSON.parse(JSON.stringify(defaultItineraryData));
+    }
+    renderApp();
+}
+
+function saveTextData() {
+    localStorage.setItem('honeymoonApp_v5', JSON.stringify(itineraryData));
+}
+
+function resetToDefault() {
+    if(confirm("Are you sure you want to completely reset the itinerary back to the original? This will delete all your edits and added stops.")) {
+        localStorage.removeItem('honeymoonApp_v5');
+        // Clear all files from DB
+        if(db) {
+            const transaction = db.transaction(["attachments"], "readwrite");
+            transaction.objectStore("attachments").clear();
+        }
+        location.reload();
+    }
+}
+
+function renderApp() {
+  renderNav();
+  renderContent();
+}
+
+function renderNav() {
+  const container = document.getElementById('nav-container');
+  container.innerHTML = '';
+  
+  Object.keys(itineraryData).forEach(dayId => {
+    const btn = document.createElement('button');
+    btn.className = `nav-btn ${dayId === currentDayId ? 'active' : ''}`;
+    btn.textContent = itineraryData[dayId].navLabel;
+    btn.onclick = () => switchDay(dayId);
+    container.appendChild(btn);
+  });
+}
+
+function switchDay(dayId) {
+  currentDayId = dayId;
+  renderNav();
+  renderContent();
+}
+
+function toggleRouteInclude(dayId, stopId) {
+  const stop = itineraryData[dayId].stops.find(s => s.id === stopId);
+  if(stop) {
+    stop.include = !stop.include;
+    saveTextData(); // Save to localStorage
+    renderContent();
+  }
+}
+
+function deleteStop(dayId, stopId) {
+  if(confirm("Remove this stop from your itinerary?")) {
+    itineraryData[dayId].stops = itineraryData[dayId].stops.filter(s => s.id !== stopId);
+    removeAttachmentDB(stopId); // clean up file if it exists
+    saveTextData(); // Save to localStorage
+    renderContent();
+  }
+}
+
+function removeAttachmentState(dayId, stopId) {
+  if(confirm("Remove the attached file from this stop?")) {
+    const stop = itineraryData[dayId].stops.find(s => s.id === stopId);
+    if(stop) {
+       stop.hasFile = false;
+       stop.fileName = null;
+    }
+    removeAttachmentDB(stopId);
+    saveTextData(); // Save to localStorage
+    renderContent();
+  }
+}
+
+function openRoute(dayId) {
+  const stops = itineraryData[dayId].stops
+    .filter(s => s.include && s.searchLoc)
+    .map(s => encodeURIComponent(s.searchLoc));
+
+  if(stops.length < 2){
+    alert("Need at least 2 checked route stops that have valid search locations.");
+    return;
+  }
+
+  const url = "https://www.google.com/maps/dir//" + stops.join("/");
+  window.open(url,"_blank");
+}
+
+function renderContent() {
+  const area = document.getElementById('content-area');
+  const day = itineraryData[currentDayId];
+  
+  let tipsHtml = day.tips.map(t => 
+    `<div class="tip-card"><div class="tip-label">${t.label}</div><div class="tip-val">${t.val}</div></div>`
+  ).join('');
+
+  let stopsHtml = day.stops.map(s => `
+    <div class="stop ${!s.include ? 'excluded' : ''}" data-type="${s.type}">
+      <div class="stop-card">
+        <div class="card-actions">
+          <button class="icon-btn edit" onclick="openEditModal('${currentDayId}', '${s.id}')" title="Edit stop">Edit</button>
+          <button class="icon-btn delete" onclick="deleteStop('${currentDayId}', '${s.id}')" title="Remove stop">Delete</button>
+        </div>
+        <div class="stop-top">
+          <div class="stop-info">
+            <div class="stop-name">${s.name}</div>
+            <div class="stop-time">${s.time}</div>
+          </div>
+          <div class="badges-container">
+            <span class="badge badge-${s.badgeColor}">${s.badgeText}</span>
+          </div>
+        </div>
+        ${s.note ? `<div class="stop-note">${s.note}</div>` : ''}
+        
+        <div class="card-footer">
+            <label class="route-toggle">
+              <input type="checkbox" ${s.include ? 'checked' : ''} onchange="toggleRouteInclude('${currentDayId}', '${s.id}')">
+              Include in Route
+            </label>
+            
+            ${s.hasFile ? `
+                <button class="file-btn" onclick="openAttachment('${s.id}')">📄 View ${s.fileName || 'Ticket'}</button>
+                <button class="file-btn remove" onclick="removeAttachmentState('${currentDayId}', '${s.id}')" title="Remove File">✖</button>
+            ` : ''}
+
+            ${s.mapLink ? `<a class="map-btn" href="${s.mapLink}" target="_blank">🗺 Open in Maps</a>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  area.innerHTML = `
+    <div class="day-panel active">
+      <div class="day-header">
+        <div class="day-title">${day.title}</div>
+        <div class="day-sub">${day.sub}</div>
+      </div>
+      
+      <div class="controls-bar">
+        <button class="action-btn btn-route" onclick="openRoute('${currentDayId}')">🗺 Generate Route Map</button>
+        <button class="action-btn btn-add" onclick="openAddModal()">➕ Add New Stop Here</button>
+        <button class="action-btn btn-reset" onclick="resetToDefault()">⟲ Reset Itinerary</button>
+      </div>
+
+      <div class="tips-grid">
+        ${tipsHtml}
+      </div>
+      
+      <div class="timeline">
+        ${stopsHtml}
+      </div>
+    </div>
+  `;
+}
+
+// Modal Logic
+function openAddModal() {
+  editingStopId = null;
+  document.getElementById('modal-title').textContent = "Add New Stop";
+  
+  // Clear inputs
+  document.getElementById('new-name').value = '';
+  document.getElementById('new-location').value = '';
+  document.getElementById('new-time').value = '';
+  document.getElementById('new-type').value = 'sightseeing';
+  document.getElementById('new-note').value = '';
+  document.getElementById('new-file').value = '';
+  document.getElementById('current-file-name').textContent = '';
+  
+  document.getElementById('stopModal').style.display = 'flex';
+}
+
+function openEditModal(dayId, stopId) {
+  editingStopId = stopId;
+  document.getElementById('modal-title').textContent = "Edit Stop";
+  
+  const stop = itineraryData[dayId].stops.find(s => s.id === stopId);
+  if(stop) {
+    document.getElementById('new-name').value = stop.name || '';
+    document.getElementById('new-location').value = stop.searchLoc || '';
+    document.getElementById('new-time').value = stop.time || '';
+    document.getElementById('new-type').value = stop.type || 'sightseeing';
+    document.getElementById('new-note').value = stop.note || '';
+    document.getElementById('new-file').value = '';
+    document.getElementById('current-file-name').textContent = stop.hasFile ? `Current file attached: ${stop.fileName}` : 'No file currently attached.';
+  }
+  
+  document.getElementById('stopModal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('stopModal').style.display = 'none';
+  editingStopId = null;
+}
+
+function saveStop() {
+  const name = document.getElementById('new-name').value;
+  const loc = document.getElementById('new-location').value;
+  const time = document.getElementById('new-time').value;
+  const type = document.getElementById('new-type').value;
+  const note = document.getElementById('new-note').value;
+  const fileInput = document.getElementById('new-file');
+
+  if(!name) {
+    alert("Stop Name is required.");
+    return;
+  }
+
+  // Derive badge info
+  let badgeColor = "blue";
+  let badgeText = "Custom";
+  if(type === "food") { badgeColor = "coral"; badgeText = "Food"; }
+  if(type === "hotel") { badgeColor = "green"; badgeText = "Hotel"; }
+  if(type === "night") { badgeColor = "purple"; badgeText = "Night"; }
+  if(type === "transit") { badgeColor = "gray"; badgeText = "Transit"; }
+  if(type === "sightseeing") { badgeColor = "blue"; badgeText = "Sightseeing"; }
+
+  let targetId = editingStopId;
+  let isNew = !targetId;
+
+  if (isNew) {
+      targetId = Date.now().toString();
+      const newStop = {
+          id: targetId,
+          type: type,
+          name: name,
+          time: time || "TBD",
+          badgeText: badgeText,
+          badgeColor: badgeColor,
+          note: note,
+          mapLink: "",
+          searchLoc: loc,
+          include: !!loc,
+          hasFile: false,
+          fileName: null
+      };
+      itineraryData[currentDayId].stops.push(newStop);
+  } else {
+      const stop = itineraryData[currentDayId].stops.find(s => s.id === targetId);
+      if(stop) {
+          stop.name = name;
+          stop.searchLoc = loc;
+          stop.time = time;
+          stop.type = type;
+          stop.note = note;
+          stop.badgeColor = badgeColor;
+          stop.badgeText = badgeText;
+          if(loc && stop.searchLoc !== loc && !stop.include) {
+             stop.include = true;
+          }
+      }
+  }
+
+  // Handle File Upload if exists
+  if (fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      const stop = itineraryData[currentDayId].stops.find(s => s.id === targetId);
+      stop.hasFile = true;
+      stop.fileName = file.name;
+      saveAttachment(targetId, file, file.name);
+  }
+
+  saveTextData(); // Save edits to localStorage
+  closeModal();
+  renderContent();
+}
+
+// Kickoff
+initDB();
+
+</script>
+
+</body>
+</html>
